@@ -1,33 +1,13 @@
-import { Route, route, serveDir } from "@std/http";
+import { Router } from "./router.ts";
 
-const routes: Route[] = [
-  {
-    pattern: new URLPattern({ pathname: "/" }),
-    handler: () => new Response("Home page"),
-  },
-  {
-    pattern: new URLPattern({ pathname: "/users/:id" }),
-    handler: (_req, _info, params) => new Response(params?.pathname.groups.id),
-  },
-  {
-    pattern: new URLPattern({ pathname: "/static/*" }),
-    handler: (req) => serveDir(req),
-  },
-];
+const app = new Router();
 
-// return 404 if no route found
-function defaultHandler(_req: Request) {
-  return new Response("Not found, please check URL", {status: 404});
-}
+app.get("/", () => new Response("Hi Mommy!"));
 
-const handler = route(routes, defaultHandler);
+app.post("/health-check", () => new Response("THE SERVER IS ALIVE!"));
 
 export default {
   fetch(req:any) {
-    //console.log("Hey the typeof req is:", typeof req)
-    let x = handler(req);
-    console.log(x, "\nis ", typeof x);
-    return x;
-    //the above handler will return Response type
-  },
+    return app.handler(req);
+  }
 } satisfies Deno.ServeDefaultExport;
